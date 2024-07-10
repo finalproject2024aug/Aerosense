@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerosense Air Quality Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/justgage@1.4.2/dist/justgage.min.js"></script>
+        <!-- Add this in your <head> or before your </body> tag -->
+    <!-- <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+
+        // Initialize Supabase client with your credentials
+        const supabaseUrl = 'https://oxebojkujqmdudvluhmp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94ZWJvamt1anFtZHVkdmx1aG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg2NTYxMjEsImV4cCI6MjAzNDIzMjEyMX0.1jv8JvwELio-41aS68XejkUKPQi_GFa8ojIkfPpEIqU';
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Example usage
+        async function fetchData() {
+            try {
+                const { data, error } = await supabase
+                    .from('MCU_LOCATIONX')
+                    .select('');
+
+                if (error) {
+                    throw error;
+                }
+
+                console.log('Fetched data:', data);
+            } catch (error) {
+                console.error('Error fetching data:', error.message);
+            }
+        }
+
+        // Initial function call (example)
+        fetchData();
+    </script> -->
+
+</head>
+<body>
+    <div class="container">
+        <h1>Aerosense Air Quality Dashboard</h1>
+        <div class="gauges-container">
+            <div class="gauge" id="temperatureGauge">
+                <div class="gauge-label">Temperature</div>
+                <div class="gauge-value"></div>
+                <canvas id="temperatureCanvas" width="200" height="150"></canvas>
+            </div>
+            <div class="gauge" id="humidityGauge">
+                <div class="gauge-label">Humidity</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            <!-- Add more gauges for other metrics (TVOC, CH2O, CO2, PM2.5, PM10) -->
+            <div class="gauge" id="TVOCGauge">
+                <div class="gauge-label">TVOC</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            
+            <div class="gauge" id="CH2OGauge">
+                <div class="gauge-label">CH2O</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            
+            <div class="gauge" id="CO2Gauge">
+                <div class="gauge-label">CO2</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            
+            <div class="gauge" id="PM25Gauge">
+                <div class="gauge-label">PM 2.5</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            
+            <div class="gauge" id="PM10Gauge">
+                <div class="gauge-label">PM 10</div>
+                <div class="gauge-value"></div>
+                <canvas width="200" height="150"></canvas>
+            </div>
+            
+        </div>
+    </div>
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+        
+        // Function to update gauges
+        const gauges = {};
+
+        function updateGauge(gaugeId, value) {
+            if (!gauges[gaugeId]) {
+                gauges[gaugeId] = new JustGage({
+                    id: gaugeId,
+                    value: value,
+                    min: 0,
+                    max: 100, // Adjust max value as needed
+                    title: document.getElementById(gaugeId).querySelector('.gauge-label').innerText,
+                    label: "",
+                    decimals: 2,
+                    gaugeWidthScale: 0.6,
+                    counter: true
+                });
+            } else {
+                gauges[gaugeId].refresh(value);
+            }
+        }
+
+
+        // Initialize Supabase client with your credentials
+        const supabaseUrl = 'https://oxebojkujqmdudvluhmp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94ZWJvamt1anFtZHVkdmx1aG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg2NTYxMjEsImV4cCI6MjAzNDIzMjEyMX0.1jv8JvwELio-41aS68XejkUKPQi_GFa8ojIkfPpEIqU';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Function to fetch and update gauges
+        async function updateGauges() {
+            try {
+                const { data, error } = await supabase
+                    .from('MCU_LOCATIONX')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    ;
+
+                if (error) {
+                    console.error('Error fetching data:', error.message);
+                    return;
+                }
+
+                // console.log('Fetched data:', data);  // Debugging line
+                console.log('newest row :', data[0])
+                const latestData = data[0];
+                // console.log('temperature:', latestData.TEMPERATURE);
+
+                if (latestData) {
+                    updateGauge('temperatureGauge', latestData.TEMPERATURE);
+                    updateGauge('humidityGauge', latestData.HUMIDITY);
+                    updateGauge('TVOCGauge', latestData.TVOC);
+                    updateGauge('CH2OGauge', latestData.CH2O);
+                    updateGauge('CO2Gauge', latestData.CO2);
+                    updateGauge('PM25Gauge', latestData.PM2_5);
+                    updateGauge('PM10Gauge', latestData.PM10);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error.message);
+            }
+        }
+        
+        
+
+        // function updateGauge(gaugeId, value) {
+        //     const gaugeElement = document.getElementById(gaugeId);
+        //     if (!gaugeElement) return;
+
+        //     // Example: Update gauge value (replace with your gauge library logic)
+        //     gaugeElement.querySelector('.gauge-value').innerText = value;
+        // }
+
+        // Initial function call (example)
+        document.addEventListener('DOMContentLoaded', () => {
+            updateGauges();
+            setInterval(updateGauges, 2000); // Update gauges every 2 seconds
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* .gauges-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.gauge {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+} */
+
+.gauge-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.gauges-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows gauges to wrap to the next line if needed */
+    gap: 20px; /* Adjust the gap between gauges */
+    justify-content: center; /* Centers gauges horizontally */
+}
+
+.gauge {
+    width: 200px; /* Adjust width as needed */
+    height: 200px; /* Adjust height as needed */
+    /* Other styling properties */
+}
+
