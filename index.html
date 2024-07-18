@@ -7,51 +7,97 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.4.2/dist/justgage.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        .gauges-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .gauge-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+
+        .gauge {
+            margin-bottom: 10px;
+        }
+
+        .gauge-label {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Aerosense Air Quality Dashboard</h1>
+        <h1 class="centered">Aerosense Air Quality Dashboard</h1>
         <div class="gauges-container">
-            <div class="gauge" id="temperatureGauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="temperatureGauge">
+                    <div class="gauge-value"></div>
+                    <canvas id="temperatureCanvas" width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">Temperature</div>
-                <div class="gauge-value"></div>
-                <canvas id="temperatureCanvas" width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="humidityGauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="humidityGauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">Humidity</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="TVOCGauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="TVOCGauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">TVOC</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="CH2OGauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="CH2OGauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">CH2O</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="CO2Gauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="CO2Gauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">CO2</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="PM25Gauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="PM25Gauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">PM 2.5</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
-            <div class="gauge" id="PM10Gauge">
+            <div class="gauge-wrapper">
+                <div class="gauge" id="PM10Gauge">
+                    <div class="gauge-value"></div>
+                    <canvas width="200" height="150"></canvas>
+                </div>
                 <div class="gauge-label">PM 10</div>
-                <div class="gauge-value"></div>
-                <canvas width="200" height="150"></canvas>
             </div>
         </div>
     </div>
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
-        
+
         const gauges = {};
 
         function updateGauge(gaugeId, value, min, max) {
@@ -61,7 +107,7 @@
                     value: value,
                     min: min,
                     max: max,
-                    title: document.getElementById(gaugeId).querySelector('.gauge-label').innerText,
+                    title: document.getElementById(gaugeId).closest('.gauge-wrapper').querySelector('.gauge-label').innerText,
                     label: "",
                     decimals: 2,
                     gaugeWidthScale: 0.6,
@@ -94,13 +140,13 @@
                 const latestData = data[0];
 
                 if (latestData) {
-                    updateGauge('temperatureGauge', latestData.TEMPERATURE, 0, 100);
+                    updateGauge('temperatureGauge', latestData.TEMPERATURE, -10, 50);
                     updateGauge('humidityGauge', latestData.HUMIDITY, 0, 100);
-                    updateGauge('TVOCGauge', latestData.TVOC, 0, 5000);
-                    updateGauge('CH2OGauge', latestData.CH2O, 0, 2000);
-                    updateGauge('CO2Gauge', latestData.CO2, 400, 5000);
-                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 999);
-                    updateGauge('PM10Gauge', latestData.PM10, 0, 1000);
+                    updateGauge('TVOCGauge', latestData.TVOC, 0, 500);
+                    updateGauge('CH2OGauge', latestData.CH2O, 0, 100);
+                    updateGauge('CO2Gauge', latestData.CO2, 0, 2000);
+                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 500);
+                    updateGauge('PM10Gauge', latestData.PM10, 0, 500);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error.message);
