@@ -108,7 +108,7 @@
     
         const gauges = {};
     
-        function updateGauge(gaugeId, value, min, max) {
+        function updateGauge(gaugeId, value, min, max, unit) {
             if (!gauges[gaugeId]) {
                 gauges[gaugeId] = new JustGage({
                     id: gaugeId,
@@ -116,7 +116,7 @@
                     min: min,
                     max: max,
                     title: document.getElementById(gaugeId).closest('.gauge-wrapper').querySelector('.gauge-label').innerText,
-                    label: "",
+                    label: unit,
                     decimals: 2,
                     gaugeWidthScale: 0.6,
                     counter: true
@@ -124,6 +124,7 @@
             } else {
                 gauges[gaugeId].config.min = min;
                 gauges[gaugeId].config.max = max;
+                gauges[gaugeId].config.label = unit;
                 gauges[gaugeId].refresh(value);
             }
         }
@@ -182,13 +183,13 @@
                 const latestData = data[0];
     
                 if (latestData) {
-                    updateGauge('temperatureGauge', latestData.TEMPERATURE, 0, 100);
-                    updateGauge('humidityGauge', latestData.HUMIDITY, 0, 100);
-                    updateGauge('TVOCGauge', latestData.TVOC, 0, 5000);
-                    updateGauge('CH2OGauge', latestData.CH2O, 0, 2000);
-                    updateGauge('CO2Gauge', latestData.CO2, 0, 5000);
-                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 1000);
-                    updateGauge('PM10Gauge', latestData.PM10, 0, 1000);
+                    updateGauge('temperatureGauge', latestData.TEMPERATURE, 0, 100, '°C');
+                    updateGauge('humidityGauge', latestData.HUMIDITY, 0, 100, '%');
+                    updateGauge('TVOCGauge', latestData.TVOC, 0, 5000, 'µg/m³');
+                    updateGauge('CH2OGauge', latestData.CH2O, 0, 2000, 'µg/m³');
+                    updateGauge('CO2Gauge', latestData.CO2, 0, 5000, 'ppm');
+                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 1000, 'µg/m³');
+                    updateGauge('PM10Gauge', latestData.PM10, 0, 1000, 'µg/m³');
                 }
             } catch (error) {
                 console.error('Error fetching data:', error.message);
@@ -199,5 +200,6 @@
             fetchTables();
         });
     </script>
+    
 </body>
 </html>
