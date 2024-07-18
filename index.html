@@ -94,7 +94,7 @@
                 const latestData = data[0];
 
                 if (latestData) {
-                    updateGauge('temperatureGauge', latestData.TEMPERATURE, -40, 100);
+                    updateGauge('temperatureGauge', latestData.TEMPERATURE, 0, 100);
                     updateGauge('humidityGauge', latestData.HUMIDITY, 0, 100);
                     updateGauge('TVOCGauge', latestData.TVOC, 0, 5000);
                     updateGauge('CH2OGauge', latestData.CH2O, 0, 2000);
