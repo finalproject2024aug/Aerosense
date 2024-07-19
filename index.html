@@ -63,6 +63,30 @@
         .y-axis path {
             display: none;
         }
+    /* Responsive design for mobile devices */
+    @media (max-width: 768px) {
+        .gauges-and-chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauges-container, .chart-container {
+            width: 100%;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            padding-left: 10px; /* Add padding */
+            padding-right: 10px; /* Add padding */
+        }
+
+        .chart-content {
+            width: 100%; /* Ensure it fits within the viewport */
+        }
+    }
     </style>
 </head>
 <body>
@@ -105,8 +129,7 @@
             </div>
             <div class="chart-container">
                 <div class="chart-wrapper">
-                    <div id="d3ChartContainer"></div>
-                    <div class="historical-toggle">
+                    <div id="d3ChartContainer" style="width: 100%; height: 400px;"></div>                    <div class="historical-toggle">
                         <button data-range="30min">Last 30 Minutes</button>
                         <button data-range="1hr">Last 1 Hour</button>
                         <button data-range="1day">Last 1 Day</button>
@@ -249,52 +272,56 @@
         }
 
         function renderChart(data) {
-            const selectedValue = document.getElementById('dataSelect').value;
+    const selectedValue = document.getElementById('dataSelect').value;
 
-            const svgWidth = 800;
-            const svgHeight = 400;
-            const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-            const width = svgWidth - margin.left - margin.right;
-            const height = svgHeight - margin.top - margin.bottom;
+    // Get the width and height of the container
+    const container = document.getElementById('d3ChartContainer');
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight || 400; // Default height if not set
 
-            d3.select('#d3ChartContainer').html(''); // Clear previous chart
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const width = containerWidth - margin.left - margin.right;
+    const height = containerHeight - margin.top - margin.bottom;
 
-            const svg = d3.select('#d3ChartContainer').append('svg')
-                .attr('width', svgWidth)
-                .attr('height', svgHeight)
-                .append('g')
-                .attr('transform', `translate(${margin.left},${margin.top})`);
+    d3.select('#d3ChartContainer').html(''); // Clear previous chart
 
-            const x = d3.scaleTime()
-                .domain(d3.extent(data, d => d.date))
-                .range([0, width]);
+    const svg = d3.select('#d3ChartContainer').append('svg')
+        .attr('width', containerWidth)
+        .attr('height', containerHeight)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-            const y = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d[selectedValue])])
-                .nice()
-                .range([height, 0]);
+    const x = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([0, width]);
 
-            const line = d3.line()
-                .x(d => x(d.date))
-                .y(d => y(d[selectedValue]));
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d[selectedValue])])
+        .nice()
+        .range([height, 0]);
 
-            svg.append('path')
-                .data([data])
-                .attr('class', 'line')
-                .attr('d', line)
-                .style('fill', 'none')
-                .style('stroke', 'steelblue')
-                .style('stroke-width', '2px');
+    const line = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d[selectedValue]));
 
-            svg.append('g')
-                .attr('class', 'x-axis')
-                .attr('transform', `translate(0,${height})`)
-                .call(d3.axisBottom(x));
+    svg.append('path')
+        .data([data])
+        .attr('class', 'line')
+        .attr('d', line)
+        .style('fill', 'none')
+        .style('stroke', 'steelblue')
+        .style('stroke-width', '2px');
 
-            svg.append('g')
-                .attr('class', 'y-axis')
-                .call(d3.axisLeft(y));
-        }
+    svg.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    svg.append('g')
+        .attr('class', 'y-axis')
+        .call(d3.axisLeft(y));
+}
+
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchTables();
