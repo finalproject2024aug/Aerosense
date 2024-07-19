@@ -7,107 +7,132 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.4.2/dist/justgage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+        }
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .centered {
             text-align: center;
+            width: 100%;
         }
-
+        .gauges-and-chart-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 100%;
+            margin: 20px;
+        }
         .gauges-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-around;
+            width: 55%; /* Adjusted from 60% to 55% */
+            max-width: 55%; /* Adjusted from 60% to 55% */
         }
-
         .gauge-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 45%;
             margin: 10px;
         }
-
-        .gauge {
-            margin-bottom: 10px;
+        .chart-container {
+            width: 45%; /* Adjusted from 40% to 45% */
+            max-width: 45%; /* Adjusted from 40% to 45% */
+            padding: 10px;
         }
-
-        .gauge-label {
-            font-weight: bold;
+        .chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
-
-        .dropdown {
-            margin: 20px;
+        .historical-toggle {
+            margin-top: 20px;
+        }
+        .line {
+            fill: none;
+            stroke-width: 2px;
+        }
+        .x-axis path,
+        .y-axis path {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="centered">Aerosense Air Quality Dashboard</h1>
-        <div class="dropdown">
+        <h1>Aerosense Air Quality Dashboard</h1>
+        <div>
             <label for="tableSelect">Select Location: </label>
             <select id="tableSelect"></select>
         </div>
-        <div class="gauges-container">
-            <div class="gauge-wrapper">
-                <div class="gauge" id="temperatureGauge">
-                    <div class="gauge-value"></div>
-                    <canvas id="temperatureCanvas" width="200" height="150"></canvas>
+        <div class="gauges-and-chart-container">
+            <div class="gauges-container">
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="temperatureGauge"></div>
+                    <div class="gauge-label">Temperature</div>
                 </div>
-                <div class="gauge-label">Temperature</div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="humidityGauge"></div>
+                    <div class="gauge-label">Humidity</div>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="TVOCGauge"></div>
+                    <div class="gauge-label">TVOC</div>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="CH2OGauge"></div>
+                    <div class="gauge-label">CH2O</div>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="CO2Gauge"></div>
+                    <div class="gauge-label">CO2</div>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="PM25Gauge"></div>
+                    <div class="gauge-label">PM 2.5</div>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="PM10Gauge"></div>
+                    <div class="gauge-label">PM 10</div>
+                </div>
             </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="humidityGauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <div id="d3ChartContainer"></div>
+                    <div class="historical-toggle">
+                        <button data-range="30min">Last 30 Minutes</button>
+                        <button data-range="1hr">Last 1 Hour</button>
+                        <button data-range="1day">Last 1 Day</button>
+                        <input type="datetime-local" id="startDate">
+                        <input type="datetime-local" id="endDate">
+                        <button id="customRange">Apply Custom Range</button>
+                        <select id="dataSelect">
+                            <option value="temperature">Temperature</option>
+                            <option value="humidity">Humidity</option>
+                            <option value="TVOC">TVOC</option>
+                            <option value="CH2O">CH2O</option>
+                            <option value="CO2">CO2</option>
+                            <option value="PM25">PM 2.5</option>
+                            <option value="PM10">PM 10</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="gauge-label">Humidity</div>
-            </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="TVOCGauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
-                </div>
-                <div class="gauge-label">TVOC</div>
-            </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="CH2OGauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
-                </div>
-                <div class="gauge-label">CH2O</div>
-            </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="CO2Gauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
-                </div>
-                <div class="gauge-label">CO2</div>
-            </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="PM25Gauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
-                </div>
-                <div class="gauge-label">PM 2.5</div>
-            </div>
-            <div class="gauge-wrapper">
-                <div class="gauge" id="PM10Gauge">
-                    <div class="gauge-value"></div>
-                    <canvas width="200" height="150"></canvas>
-                </div>
-                <div class="gauge-label">PM 10</div>
             </div>
         </div>
     </div>
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
-    
+
         const gauges = {};
-    
+        let intervalId;
+
         function updateGauge(gaugeId, value, min, max, unit) {
             if (!gauges[gaugeId]) {
                 gauges[gaugeId] = new JustGage({
@@ -128,21 +153,16 @@
                 gauges[gaugeId].refresh(value);
             }
         }
-    
+
         const supabaseUrl = 'https://oxebojkujqmdudvluhmp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94ZWJvamt1anFtZHVkdmx1aG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg2NTYxMjEsImV4cCI6MjAzNDIzMjEyMX0.1jv8JvwELio-41aS68XejkUKPQi_GFa8ojIkfPpEIqU';
         const supabase = createClient(supabaseUrl, supabaseKey);
-    
+
         async function fetchTables() {
             try {
-                const { data, error } = await supabase
-                    .rpc('list_tables');
-    
-                if (error) {
-                    console.error('Error fetching table names:', error.message);
-                    return;
-                }
-    
+                const { data, error } = await supabase.rpc('list_tables');
+                if (error) throw error;
+
                 const tableSelect = document.getElementById('tableSelect');
                 tableSelect.innerHTML = '';
                 data.forEach(table => {
@@ -151,55 +171,189 @@
                     option.textContent = table.table_name;
                     tableSelect.appendChild(option);
                 });
-    
+
                 // Initial update
-                updateGauges(tableSelect.value);
-                let intervalId = setInterval(() => updateGauges(tableSelect.value), 2000);
-    
+                const initialTable = tableSelect.value;
+                updateGauges(initialTable);
+                intervalId = setInterval(() => updateGauges(initialTable), 2000);
+
                 tableSelect.addEventListener('change', () => {
                     clearInterval(intervalId);
-                    updateGauges(tableSelect.value);
-                    intervalId = setInterval(() => updateGauges(tableSelect.value), 2000);
+                    const newTable = tableSelect.value;
+                    updateGauges(newTable);
+                    intervalId = setInterval(() => updateGauges(newTable), 2000);
                 });
-    
+
             } catch (error) {
                 console.error('Error fetching tables:', error.message);
+                alert('Error fetching tables. Please try again later.');
             }
         }
-    
+
         async function updateGauges(tableName) {
-            console.log(`Updating gauges for table: ${tableName}`);
             try {
                 const { data, error } = await supabase
                     .from(tableName)
                     .select('*')
                     .order('created_at', { ascending: false });
-    
-                if (error) {
-                    console.error('Error fetching data:', error.message);
-                    return;
-                }
-    
+
+                if (error) throw error;
+
                 const latestData = data[0];
-    
+
                 if (latestData) {
-                    updateGauge('temperatureGauge', latestData.TEMPERATURE, 0, 100, '°C');
+                    updateGauge('temperatureGauge', latestData.TEMPERATURE, -10, 50, '°C');
                     updateGauge('humidityGauge', latestData.HUMIDITY, 0, 100, '%');
-                    updateGauge('TVOCGauge', latestData.TVOC, 0, 5000, 'µg/m³');
-                    updateGauge('CH2OGauge', latestData.CH2O, 0, 2000, 'µg/m³');
-                    updateGauge('CO2Gauge', latestData.CO2, 0, 5000, 'ppm');
-                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 1000, 'µg/m³');
-                    updateGauge('PM10Gauge', latestData.PM10, 0, 1000, 'µg/m³');
+                    updateGauge('TVOCGauge', latestData.TVOC, 0, 500, 'ppb');
+                    updateGauge('CH2OGauge', latestData.CH2O, 0, 100, 'ppm');
+                    updateGauge('CO2Gauge', latestData.CO2, 0, 2000, 'ppm');
+                    updateGauge('PM25Gauge', latestData.PM2_5, 0, 500, 'µg/m³');
+                    updateGauge('PM10Gauge', latestData.PM10, 0, 500, 'µg/m³');
                 }
             } catch (error) {
                 console.error('Error fetching data:', error.message);
+                alert('Error fetching data. Please try again later.');
             }
         }
-    
+
+        async function fetchHistoricalData(tableName, startTime, endTime) {
+            try {
+                console.log(`Fetching historical data for table: ${tableName} from ${startTime} to ${endTime}`);
+                const { data, error } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .gte('created_at', startTime)
+                    .lte('created_at', endTime)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                console.log('Fetched Data:', data);
+
+                const processedData = data.map(entry => ({
+                    date: new Date(entry.created_at),
+                    temperature: entry.TEMPERATURE,
+                    humidity: entry.HUMIDITY,
+                    TVOC: entry.TVOC,
+                    CH2O: entry.CH2O,
+                    CO2: entry.CO2,
+                    PM25: entry.PM2_5,
+                    PM10: entry.PM10
+                }));
+
+                renderChart(processedData);
+            } catch (error) {
+                console.error('Error fetching historical data:', error.message);
+                alert('Error fetching historical data. Please try again later.');
+            }
+        }
+
+        function renderChart(data) {
+            const selectedValue = document.getElementById('dataSelect').value;
+
+            const svgWidth = 800;
+            const svgHeight = 400;
+            const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+            const width = svgWidth - margin.left - margin.right;
+            const height = svgHeight - margin.top - margin.bottom;
+
+            d3.select('#d3ChartContainer').html(''); // Clear previous chart
+
+            const svg = d3.select('#d3ChartContainer').append('svg')
+                .attr('width', svgWidth)
+                .attr('height', svgHeight)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d[selectedValue])])
+                .nice()
+                .range([height, 0]);
+
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d[selectedValue]));
+
+            svg.append('path')
+                .data([data])
+                .attr('class', 'line')
+                .attr('d', line)
+                .style('fill', 'none')
+                .style('stroke', 'steelblue')
+                .style('stroke-width', '2px');
+
+            svg.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append('g')
+                .attr('class', 'y-axis')
+                .call(d3.axisLeft(y));
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             fetchTables();
+
+            document.querySelectorAll('.historical-toggle button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const range = button.getAttribute('data-range');
+                    const endDate = new Date();
+                    let startDate;
+
+                    switch (range) {
+                        case '30min':
+                            startDate = new Date(endDate.getTime() - 30 * 60 * 1000);
+                            break;
+                        case '1hr':
+                            startDate = new Date(endDate.getTime() - 60 * 60 * 1000);
+                            break;
+                        case '1day':
+                            startDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+                            break;
+                        default:
+                            return;
+                    }
+
+                    fetchHistoricalData(document.getElementById('tableSelect').value, startDate.toISOString(), endDate.toISOString());
+                });
+            });
+
+            document.getElementById('customRange').addEventListener('click', () => {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                if (startDate && endDate) {
+                    fetchHistoricalData(document.getElementById('tableSelect').value, startDate, endDate);
+                }
+            });
+
+            document.getElementById('dataSelect').addEventListener('change', () => {
+                const range = document.querySelector('.historical-toggle button[data-range]').getAttribute('data-range');
+                const endDate = new Date();
+                let startDate;
+
+                switch (range) {
+                    case '30min':
+                        startDate = new Date(endDate.getTime() - 30 * 60 * 1000);
+                        break;
+                    case '1hr':
+                        startDate = new Date(endDate.getTime() - 60 * 60 * 1000);
+                        break;
+                    case '1day':
+                        startDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+                        break;
+                    default:
+                        return;
+                }
+
+                fetchHistoricalData(document.getElementById('tableSelect').value, startDate.toISOString(), endDate.toISOString());
+            });
         });
     </script>
-    
 </body>
 </html>
