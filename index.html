@@ -9,84 +9,102 @@
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.4.2/dist/justgage.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: 100%;
-        }
-        .gauges-and-chart-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 100%;
-            margin: 20px;
-        }
-        .gauges-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            width: 55%; /* Adjusted from 60% to 55% */
-            max-width: 55%; /* Adjusted from 60% to 55% */
-        }
-        .gauge-wrapper {
-            width: 45%;
-            margin: 10px;
-        }
-        .chart-container {
-            width: 45%; /* Adjusted from 40% to 45% */
-            max-width: 45%; /* Adjusted from 40% to 45% */
-            padding: 10px;
-        }
-        .chart-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .historical-toggle {
-            margin-top: 20px;
-        }
-        .line {
-            fill: none;
-            stroke-width: 2px;
-        }
-        .x-axis path,
-        .y-axis path {
-            display: none;
-        }
-    /* Responsive design for mobile devices */
-    @media (max-width: 768px) {
-        .gauges-and-chart-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* Base Styles */
+/* Base Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+}
 
-        .gauges-container, .chart-container {
-            width: 100%;
-        }
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
 
-        .chart-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            padding-left: 10px; /* Add padding */
-            padding-right: 10px; /* Add padding */
-        }
+.gauges-and-chart-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    margin: 20px;
+}
 
-        .chart-content {
-            width: 100%; /* Ensure it fits within the viewport */
-        }
+.gauges-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 55%; /* Adjusted from 60% to 55% */
+    max-width: 55%; /* Adjusted from 60% to 55% */
+}
+
+.gauge-wrapper {
+    width: 45%;
+    margin: 10px;
+}
+
+.chart-container {
+    width: 45%; /* Adjusted from 40% to 45% */
+    max-width: 45%; /* Adjusted from 40% to 45% */
+    padding: 10px;
+}
+
+.chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.historical-toggle {
+    margin-top: 20px;
+}
+
+.line {
+    fill: none;
+    stroke-width: 2px;
+}
+
+.x-axis path,
+.y-axis path {
+    display: none;
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+    .gauges-and-chart-container {
+        flex-direction: column; /* Stack items vertically on mobile */
+        align-items: center;
     }
+
+    .gauges-container {
+        width: 100%;
+    }
+
+    .chart-container {
+        width: 100%; /* Full width on mobile */
+        max-width: 100%; /* Ensure it does not exceed viewport */
+        margin-top: 20px;
+        padding-left: 20px; /* Increased padding */
+        padding-right: 20px; /* Increased padding */
+    }
+
+    .chart-wrapper {
+        width: 100%; /* Ensure chart content fits within container */
+        height: auto; /* Adjust height based on aspect ratio */
+    }
+
+    #d3ChartContainer {
+        width: 100%; /* Full width to utilize available space */
+        height: auto; /* Adjust height based on aspect ratio */
+    }
+}
+
     </style>
 </head>
 <body>
@@ -129,7 +147,8 @@
             </div>
             <div class="chart-container">
                 <div class="chart-wrapper">
-                    <div id="d3ChartContainer" style="width: 100%; height: 400px;"></div>                    <div class="historical-toggle">
+                    <div id="d3ChartContainer" style="width: 100%; height: auto;"></div>
+                    <div class="historical-toggle">
                         <button data-range="30min">Last 30 Minutes</button>
                         <button data-range="1hr">Last 1 Hour</button>
                         <button data-range="1day">Last 1 Day</button>
@@ -274,10 +293,9 @@
         function renderChart(data) {
     const selectedValue = document.getElementById('dataSelect').value;
 
-    // Get the width and height of the container
     const container = document.getElementById('d3ChartContainer');
     const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight || 400; // Default height if not set
+    const containerHeight = containerWidth * 0.5; // Maintain a 2:1 aspect ratio
 
     const margin = { top: 20, right: 30, bottom: 30, left: 40 };
     const width = containerWidth - margin.left - margin.right;
@@ -321,6 +339,7 @@
         .attr('class', 'y-axis')
         .call(d3.axisLeft(y));
 }
+
 
 
         document.addEventListener('DOMContentLoaded', () => {
